@@ -14,17 +14,13 @@ public class Enterprise {
     @TableId(type = IdType.AUTO)
     private Integer id; // 主键
     private String userAddress; // 用户地址
-
     private String enterpriseName; // 企业名称
-
     private int domesticOrForeign; // 国内或国外 (0: 国内, 1: 国外)
-
     private String registrationLocation; // 注册地点
-
     private int foreignInvestmentRatio; // 外资比例
-
     private Long financingScale; // 融资规模
     private Boolean isRegistered; // 是否注册
     private int score; // 评分
+    private int overdueRepaymentCount; //  逾期还款次数
 
 }

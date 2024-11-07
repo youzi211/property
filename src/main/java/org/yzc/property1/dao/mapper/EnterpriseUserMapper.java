@@ -10,5 +10,5 @@ public interface EnterpriseUserMapper extends BaseMapper<Enterprise> {
     // 你可以在这里定义额外的查询或操作方法
     //根据地址查询企业
     @Select("SELECT * FROM enterpriseuser WHERE user_address = #{address}")
-    Enterprise selectByUsername(String address);
+    Enterprise selectByAddress(String address);
 }

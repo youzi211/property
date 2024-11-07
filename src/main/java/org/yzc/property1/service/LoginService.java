@@ -19,6 +19,8 @@
     import org.yzc.property1.model.params.LoginParam;
     import org.yzc.property1.util.HttpUtils;
     import org.yzc.property1.util.JWTUtils;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
 
     import java.util.ArrayList;
     import java.util.Arrays;
@@ -40,32 +42,36 @@
         private UserMapper userMapper;
         @Autowired
         private EnterpriseUserMapper enterpriseUserMapper;
-
+        private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
         //加密盐
         private static final String slat = "yzc!@#";
 
         public Result login(LoginParam loginParam) {
-            /**
-             * 检查参数是否合法
-             * 根据用户名和密码去user表中查询 是否存在
-             * 如果不存在 登录失败
-             * 如果存在，使用JWT 生成token 返回前端
-             * token放入redis当中 token：user信息，设置过期时间
-             * （登录认证的时候 先认证token字符串是否合法，去redis认证是否存在）
-             */
             String username = loginParam.getUsername();
             String password = loginParam.getPassword();
-            if (StringUtils.isBlank(username)||StringUtils.isBlank(password)){
-                return Result.fail(ErrorCode.PARAMS_ERROR.getCode(),ErrorCode.PARAMS_ERROR.getMsg());
+
+            // 记录登录尝试
+            logger.info("用户尝试登录，用户名: {}", username);
+
+            if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
+                logger.warn("用户名或密码为空，用户名: {}", username);
+                return Result.fail(ErrorCode.PARAMS_ERROR.getCode(), ErrorCode.PARAMS_ERROR.getMsg());
             }
-            password= DigestUtils.md5Hex(password+slat);
-            User user=userService.findUser(username,password);
-            if (user==null){
-                return Result.fail(ErrorCode.ACCOUNT_PWD_NOT_EXIST.getCode(),ErrorCode.ACCOUNT_PWD_NOT_EXIST.getMsg());
+
+            password = DigestUtils.md5Hex(password + slat);
+            User user = userService.findUser(username, password);
+
+            if (user == null) {
+                logger.warn("登录失败，用户名或密码错误: {}", username);
+                return Result.fail(ErrorCode.ACCOUNT_PWD_NOT_EXIST.getCode(), ErrorCode.ACCOUNT_PWD_NOT_EXIST.getMsg());
             }
+
             String token = JWTUtils.createToken(user.getId());
-            redisTemplate.opsForValue().set("TOKEN_"+token, JSON.toJSONString(user),1, TimeUnit.DAYS);
-            return Result.success(user.getRoles(),token);
+            redisTemplate.opsForValue().set("TOKEN_" + token, JSON.toJSONString(user), 1, TimeUnit.DAYS);
+
+            // 记录成功登录
+            logger.info("用户登录成功，用户名: {}", username);
+            return Result.success(user.getRoles(), token);
         }
 
 
@@ -110,7 +116,7 @@
             .setIsRegistered(false)
             .setForeignInvestmentRatio(enterpriseUser.getForeignInvestmentRatio())
             .setDomesticOrForeign(enterpriseUser.getDomesticOrForeign())
-            .setRegistrationLocation(enterpriseUser.getRegistrationLocation()).setScore(100);
+            .setRegistrationLocation(enterpriseUser.getRegistrationLocation()).setScore(100).setOverdueRepaymentCount(0);
 
 
 

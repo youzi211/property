@@ -48,7 +48,7 @@ public class UserService {
             return Result.fail(10008,"token失效");
         }
         // 根据用户地址查询企业信息
-        Enterprise enterprise = enterpriseMapper.selectByUsername(user.getUsername());
+        Enterprise enterprise = enterpriseMapper.selectByAddress(user.getUserAddress());
         return Result.success(enterprise);
     }
     private User checkToken(String token){

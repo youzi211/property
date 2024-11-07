@@ -1,5 +1,5 @@
 package org.yzc.property1.dao.entity;
-
+import java.time.LocalDateTime; // 导入 LocalDateTime 类
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -15,7 +15,7 @@ public class DataIp {
     private Integer id;
     private String owner;
     private String dataSummary;
-    private Long initialScore;
-    private String reviewer;
+    private int initialScore;
+    private LocalDateTime registerTime; // 注册时间
     private Boolean isApproved;
 }
